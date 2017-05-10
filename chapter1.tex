@@ -1,0 +1,150 @@
+\documentclass[report.tex]{subfiles}
+
+\begin{document}
+
+\chapter{Introduction}
+
+\section{A brief history of the Monte Carlo method}
+
+In 1946 a Polish-American mathematician Stanisław Ulam\footnote{
+  Stan, currently one of the most widely used probabilistic programming languages
+  providing full Bayesian inference, is named after Stanisław Ulam
+  \cite{stanReferenceManual}.
+}
+was playing Canfield solitaire while recovering from brain surgery.
+He got interested in computinig the probability of winning based on the initial
+layout of cards. After unsucessfully spending a lot of time trying to calculate it
+by pure combinatorial approaches it occured to him that simply playing the
+game, say one hundred times and obtaining a rough estimate might be of more
+practical use \cite{eckhardt1987stan}. Using repeated random sampling
+to obtain numerical approximations for intractable problems is at the
+core of the Monte Carlo method.
+
+The idea of statistical sampling itself was not new at the time. For example,
+the Italian physicist Enrico Fermi used it to study neutron diffusion in the
+early 1930s. Such techniques had fallen out of use because of the
+length and tediousness of the calculations, which at the time had to be
+performed by humans. However, in February 1946 one of the earliest electronic
+general-purpose computer ENIAC was announced to the public. The key insight of
+Stanisław Ulam was that ENIAC's computing power could be used to revive these
+statistical sampling techniques \cite{metropolis1987beginning}, whose significance
+was soon recognised by John von Neumann. Thus began the rapid development of
+Monte Carlo techniques.
+
+The first unclassified paper on the Monte Carlo method appeared in 1949, written
+by \citet{metropolis1949monte}. Four years later, the first Markov chain Monte Carlo
+(MCMC) approach was developed in Los Alamos by physicists \citet{metropolis1953equation}.
+In 1970 it was generalized by \citet{hastings1970monte} to what is now
+known as the Metropolis-Hastings algorithm. Despite extensive
+use of MCMC algorithms by physicists, it only made an impact on the statistical
+community in the early 1990s, marked by the seminal paper of
+\citet{gelfand1990sampling}. Since then MCMC has been a very active area of
+research in Statistics. Indeed, almost half of the articles found by a
+Google Scholar search using the keyword "MCMC" were published after the year 2000.
+
+In 2012 a fundamentally different MCMC algorithm by \citet{peters2012rejection}
+appeared in the physics literature. This new algorithm relies on simulation of
+a continuous-time non-reversible piecewise-deterministic Markov process. In
+contrast, many other MCMC techniques are variations of the
+Metropolis-Hastings algorithm and hence rely on simulation of a discrete-time
+reversible Markov chain. The new algorithm by \citet{peters2012rejection}
+was generalised by \citet{bouchard2015bouncy},
+where theoretical guarantees and extensive analysis is given.
+It has been also shown to compare favourably with the current
+state-of-the-art methods on various Bayesian inference tasks and to be
+particularly suitable for the big data setting.
+
+
+\section{Motivation for using Monte Carlo simulations}
+
+In many scientific problems one has to compute an integral over some
+high-dimensional space.
+Finding a closed form representation is usually infeasible and numerical
+approximation techniques have to be used.
+As the dimensionality of the integral increases, most deterministic
+numerical integration techniques need to evaluate the integrand at exponentially
+more points thus making such algorithms computationally intractable.
+We will now briefly show how such integrals appear in Bayesian inference
+(which is the main motivation for this project)
+and how Monte Carlo techniques can be used to approximate
+them.
+
+In Bayesian statistics (see \citet{gelman2014bayesian} for a great introduction),
+a probability model is given by a joint
+probability distribution over the unobservable parameters of interest
+$\theta \in \Theta$
+(where the dimensionality of $\Theta$ is defined by our model)
+and observed data $x$.
+We define the model in terms of the \textit{likelihood function}
+$p(x \vert \theta)$ and the \textit{prior distribution} over the parameters $p(\theta)$:
+\begin{equation*}
+  p(\theta, x) = p(x \vert \theta)p(\theta).
+\end{equation*}
+By observing the dataset $x$ we gain additional insight into the distribution of
+parameters $\theta$, which is summarised in the \textit{posterior distribution}
+$p(\theta \vert x)$.
+We can calculate the posterior distribution by applying the Bayes' theorem:
+\begin{equation*}
+  p(\theta \vert x)
+  = \frac{p(\theta, x)}{p(x)}
+  = \frac{p(x \vert \theta)p(\theta)}{p(x)}.
+\end{equation*}
+Calculating $p(x)$ is also infeasible, except for the simplest models and hence
+we usually only have access to an unnormalised posterior density:
+\begin{equation*}
+  p(\theta \vert x) \propto p(x \vert \theta)p(\theta).
+\end{equation*}
+We can express our quantities of interest in terms of expectations of the form:
+\begin{equation*}
+  \exWithDistribution{\theta \sim p(\theta \vert x)}{f(\theta)}
+  = \myint{\Theta}{}{f(\theta)p(\theta \vert x)}{\theta}.
+\end{equation*}
+Now suppose we can draw random samples $\theta^{(1)}, \theta^{(2)}, \dots$
+from the posterior distribution $p(\theta \vert x)$.
+Then, using the \textit{strong law of large numbers} we can estimate
+the above integral by $S_{n} \coloneqq \frac{1}{n} \sum_{i = 1}^{n} f(\theta^{(i)})$.
+The \textit{central limit theorem} then tells us that
+\begin{equation*}
+  \sqrt{n}(S_{n} - \ex{\theta \sim p(\theta \vert x)}{f(\theta)})
+  \xrightarrow[]{d} N(0, \sigma^{2}),
+\end{equation*}
+where $N(0, \sigma^2)$ is a centred Gaussian random variable,
+$\sigma^2 := \varianceWithDistribution{\theta \sim p(\theta \vert x)}{f(\theta)}$
+and $\xrightarrow{d}$~denotes the convergence in distribution.
+Hence the asymptotic error rate $O(n^{-\frac{1}{2}})$ does not depend
+on the dimensionality of $\Theta$, which is the main advantage of the Monte Carlo
+techniques for approximating integrals.
+However, it is not fair to say that
+Monte Carlo algorithms beat the curse of dimensionality --
+drawing random samples from arbitrary distributions can be hard and the
+resulting variance of our estimator can also be unreasonably high.
+
+\section{Project outline}
+
+In this project, we develop a framework for creating,
+analysing and comparing new MCMC algorithms which
+rely on simulation of a piecewise-deterministic Markov process.
+Using this framework, we efficiently implement the Bouncy Particle
+Sampler algorithm \cite{bouchard2015bouncy}.
+
+In Chapter 2 we provide the necessary background material on simulation of
+inhomogeneous Poisson processes and piecewise-deterministic Markov processes.
+In Chapter 3 we present the basic version of the Bouncy Particle Sampler and discuss
+the implementation design choices.
+In Chapter 4 we present the analysis framework,
+which can automatically compare different algorithms implemented within this
+framework.
+In Chapter 5 we show how the analysis framework can be used to
+compare two different expectation estimators on the samples produced by the
+Bouncy Particle Sampler.
+In Chapter 6 we show how an even more recently proposed
+MCMC algorithm based on piecewise-deterministic Markov process simulation by
+\citet{bierkens2016zig} can be trivially implemented and compared with the Bouncy
+Particle Sampler using the analysis framework described in chapter 5.
+In Chapter 7, we apply the Bouncy Particle Sampler to a real world dataset.
+
+\par\vspace{3em}\noindent
+Note: the above describtion of the chapters is likely to deviate quite a lot
+from what is proposed right now.
+
+\end{document}

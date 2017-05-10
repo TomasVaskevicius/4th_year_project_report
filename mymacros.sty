@@ -1,0 +1,42 @@
+% Counting process command for introduction to Poisson processes.
+\DeclareRobustCommand{\countingProcess}[3]
+  {\ensuremath{{#1}\!({#2},{#3}]}}
+
+% Probability operator.
+\DeclareRobustCommand{\pr}[1]
+  {\ensuremath{\mathbb{P}\!\left({#1}\right)}}
+
+% Conditional probability operator.
+\DeclareRobustCommand{\cpr}[2]
+  {\ensuremath{\mathbb{P}\!\left({#1} \mid {#2}\right)}}
+
+% Expectation operator.
+\DeclareRobustCommand{\ex}[1]
+  {\ensuremath{\mathbb{E}\!\left[{#1}\right]}}
+
+% Expectation operator with specified distribution.
+\DeclareRobustCommand{\exWithDistribution}[2]
+  {\ensuremath{\mathbb{E}_{{#1}}\!\left[{#2}\right]}}
+
+% Variance operator.
+\DeclareRobustCommand{\variance}[1]
+  {\ensuremath{Var\!\left[{#1}\right]}}
+
+% Variance operator with specified distribution.
+\DeclareRobustCommand{\varianceWithDistribution}[2]
+  {\ensuremath{Var_{{#1}}\!\left[{#2}\right]}}
+
+% The exponential function.
+\DeclareRobustCommand{\myexp}[1]
+  {\ensuremath{\exp\!\left({#1}\right)}}
+
+% Integration (w.r.t Lebesgue measure).
+\DeclareRobustCommand{\myint}[4]
+  {\ensuremath{\int_{{#1}}^{{#2}} {#3}\, d{#4}}}
+
+% Integration (no measure defined).
+\DeclareRobustCommand{\myintNoVariable}[3]
+  {\ensuremath{\int_{{#1}}^{{#2}} {#3}}}
+
+% Arg min operator.
+\newcommand{\argmin}[1]{\underset{#1}{\operatorname{arg}\,\operatorname{min}}\;}

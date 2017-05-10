@@ -1,0 +1,81 @@
+\documentclass[report.tex]{subfiles}
+
+\begin{document}
+
+\chapter{The toy example Poisson process time simulation}
+\label{appendix-toy-example-poisson-process-jump-time-simulation}
+
+We will derive exact formulas for simulating the Poisson process times
+for the toy PDMP from Section~\ref{pdmp-toy-example-section}.
+Let the state space be
+$Z = \mathbb{R}^{2d} = \mathbb{R}^{d} \times \mathbb{R}^{d} = (X, Y)$.
+We have the flow function given by $\phi((x,v), t) = (x + vt, v)$ and the
+intensity function given by $\lambda(x, v) = \max\{0, \left\langle x, v \right\rangle\}$
+We give all the credit to \citet{bouchard2015bouncy} for the derivation
+of the following results.
+
+Note that we can write (with $\lVert \cdot \rVert$ denoting the $L^{2}$ norm):
+
+\begin{align*}
+  \lambda(\phi((x, v), t))
+  &= \lambda(x + vt, v) \\
+  &= \langle x + vt, v \rangle^{+} \\
+  &= \left\langle \nabla \frac{\lVert x + vt \rVert^{2}}{2}, \dv{}{t} (x + vt) \right\rangle^{+} \\
+  &= \left( \dv{}{t} \frac{\lVert x + vt \rVert^{2}}{2} \right)^{+}.
+\end{align*}
+
+Now note that $\lVert \cdot \rVert$ is a strictly convex function. It thus follows, that
+for a given $(x, v) \in \mathbb{R}^{2d}\,\, \exists \tau^{*} \geq 0$, such that
+$\dv{}{t} \lVert x + vt \rVert^{2}$ is negative for $t \in (0, \tau^{*})$ and positive
+for $t \in (\tau^{*}, \infty)$. We can calculate the value of $\tau^{*}$ exactly,
+by solving $\dv{}{t} \lVert x + vt \rVert^{2} = 0$ for $t$ (and setting $\tau^{*} = 0$ if the solution is negative).
+One can easily verify that:
+\begin{equation}
+  \label{tau-star-equation}
+  \tau^{*} = \left( -\frac{\langle x, v \rangle}{\lVert v \rVert^{2}} \right)^{+}.
+\end{equation}
+
+Now lets see how we can use the Algorithm~\ref{alg-non-hom-pp-time-scale}
+(the time scale tr  ansformation algorithm)
+for simulating jump times of our PDMP. We first simulate
+$U \sim \text{Uniform}(0, 1)$
+and try to find smallest $\tau \geq 0$ such that
+$$
+\myint{0}{\tau}{\lambda(\phi((x, v), t))}{t}
+= \myint{0}{\tau}{\left( \dv{}{t} \frac{\lVert x + vt \rVert^{2}}{2} \right)^{+}}{t}
+= -\log U.
+$$
+Now note that we can rewrite:
+\begin{align*}
+  \myint{0}{\tau}{\left( \dv{}{t} \frac{\lVert x + vt \rVert^{2}}{2} \right)^{+}}{t}
+  &= \myint{0}{\tau^{*}}{0}{t}
+  + \myint{\tau^{*}}{\tau}{\dv{}{t} \frac{\lVert x + vt \rVert^{2}}{2}}{t} \\
+  &= \myint{\tau^{*}}{\tau}{\dv{}{t} \frac{\lVert x + vt \rVert^{2}}{2}}{t} \\
+  &= \frac{\lVert x + v\tau \rVert^{2}}{2} - \frac{\lVert x + v\tau^{*} \rVert^{2}}{2} \\
+\end{align*}
+Hence, to get the jump time we need to solve the following equation for $\tau$:
+$$
+  \frac{\lVert x + v\tau \rVert^{2}}{2} - \frac{\lVert x + v\tau^{*} \rVert^{2}}{2}
+  = -\log U
+$$
+If $\tau^{*} = 0$, the equation becomes:
+$$
+\lVert v \rVert^{2} \tau^{2} + 2 \langle x, v \rangle \tau + 2 \log U = 0
+$$
+and solving for the positive root, we obtain:
+$$
+\tau = \frac{1}{\lVert v \rVert^{2}} \left( - \langle x, v \rangle + \sqrt{\langle x, v \rangle^{2} - 2 \lVert v \rVert^{2} \log U} \right).
+$$
+If $\tau^{*} > 0$, ten by using Equation~\ref{tau-star-equation} we get the following quadratic equation:
+$$
+\lVert v \rVert^{2} \tau^{2} + 2 \langle x, v \rangle \tau + 2 \log U - \frac{\langle x, v \rangle^{2}}{\lVert v  \rVert^{2}}= 0
+$$
+with the positive root giving:
+$$
+\tau = \frac{1}{\lVert v \rVert^{2}} \left( - \langle x, v \rangle + \sqrt{- 2 \lVert v \rVert^{2} \log U} \right).
+$$
+This concludes the derivation of equations for the jump time simulation of the toy PDMP from Section~\ref{pdmp-toy-example-section}.
+
+
+
+\end{document}

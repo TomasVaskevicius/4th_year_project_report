@@ -1,0 +1,106 @@
+\documentclass[12pt]{ociamthesis}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{subfiles}
+\usepackage[raggedright]{titlesec}
+\usepackage[numbers]{natbib}
+\usepackage{mathtools}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{mymacros}
+\usepackage{graphicx}
+\usepackage[font=footnotesize]{caption}
+\usepackage{subcaption}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{float}
+
+% Formatting for \chapter command.
+\titleformat{\chapter}[block]
+  {\normalfont\Large\bfseries}{\thechapter}{1em}{}
+\titlespacing*{\chapter}{0em}{0em}{1em}
+
+% Formatting for \section command.
+\titleformat{\section}[block]
+  {\normalfont\large\bfseries}{\thesection}{1em}{}
+\titlespacing*{\section}{0em}{1em}{1em}
+
+% Formatting for \section command.
+\titleformat{\subsection}[block]
+  {\normalfont\normalsize\bfseries}{\thesubsection}{1em}{}
+\titlespacing*{\subsection}{0em}{1em}{1em}
+
+\bibliographystyle{abbrvnat}
+
+\include{mymacros}
+
+\DeclareGraphicsExtensions{.png}
+
+% Remove colon after line numbers in pseudocode algorithms.
+\algrenewcommand\alglinenumber[1]{\footnotesize #1}
+
+\newfloat{lstfloat}{htbp}{lop}
+\floatname{lstfloat}{Listing}
+
+\lstset{ %
+  language=C++,                % choose the language of the code
+  basicstyle=\ttfamily\footnotesize,       % the size of the fonts that are used for the code
+  numbers=left,                   % where to put the line-numbers
+  numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+  stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
+  numbersep=5pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  %frame=t,           % adds a frame around the code
+  columns=fullflexible,
+  keepspaces=true,
+  tabsize=2,          % sets default tabsize to 2 spaces
+  captionpos=t,           % sets the caption-position to bottom
+  breaklines=true,        % sets automatic line breaking
+  breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
+  escapeinside={(*}{*)},          % if you want to add a comment within your code
+  commentstyle=\color{OliveGreen}\ttfamily,
+  keywordstyle=\color{Blue}\bfseries,
+  xrightmargin=0.7cm,
+  xleftmargin=0.7cm
+}
+
+\title{Efficient implementation of non-reversible rejection-free \\
+       Markov Chain Monte Carlo algorithms}
+\author{Tomas Vaškevičius}
+\college{St Anne's College}
+\renewcommand{\submittedtext}{A project report submitted in partial fulfilment
+of the requirements for the degree of}
+\degree{MMathCompSci}
+\degreedate{May 2017}
+
+\begin{document}
+
+\maketitle
+
+\setcounter{tocdepth}{1}
+\begin{romanpages}
+\tableofcontents
+\end{romanpages}
+
+\subfile{chapter1} % Introduction.
+\subfile{chapter2} % Background material.
+\subfile{chapter3} % Simulating piecewise-deterministic Markov processes.
+\subfile{chapter4} % The Bouncy Particle Sampler.
+
+\appendix
+\subfile{appendix_a} % Toy PDMP example Poisson process time simulation.
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{References}
+\renewcommand{\bibname}{References}
+\bibliography{references}
+
+\end{document}
