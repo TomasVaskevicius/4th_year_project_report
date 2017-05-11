@@ -352,7 +352,7 @@ of higher abstraction on top of the current implementation.
 This additional layer will automatically exploit the structure of the process,
 where possible, in order to achieve remarkable computational gains.
 The exact implementation details will be hidden from the client of our library,
-but remain flexible if some parts need to modified for custom needed.
+but remain flexible in case some parts need to be customised for special needs.
 In this section, we identify this special structure of certain PDMPs
 and discuss how to exploit it.
 The implementation details will be explored in the next section.
@@ -360,8 +360,8 @@ The implementation details will be explored in the next section.
 Recall the Equation~\ref{pdmp-infinitesimal-generator} giving a general form\footnote{
 Note how the explanations for each term in Equation~\ref{pdmp-infinitesimal-generator-again}
 reassure us, that
-choosing Poisson process simulation, Markov kernel and deterministic flow as policies in
-our PDMP framework's design makes perfect sense.
+choosing the Poisson process simulation, the Markov jump kernel and the deterministic
+flow as policies in our PDMP framework's design makes perfect sense.
 } for infinitesimal generators of PDMPs:
 \begin{equation}
   \label{pdmp-infinitesimal-generator-again}
@@ -389,7 +389,7 @@ second term of the infinitesimal generator:
   =\,&\lambda_{1}(x)\myintNoVariable{\mathbb{R}^{d}}{}{}{(f(y) - f(x))\mathcal{Q}_{1}(x, dy)}
     + \lambda_{2}(x)\myintNoVariable{\mathbb{R}^{d}}{}{}{(f(y) - f(x))\mathcal{Q}_{2}(x, dy)} \\
 \end{align*}
-We can then simulate our PDMP started at $x$ follows:
+We can then simulate our PDMP started at $x$ as follows:
 \begin{enumerate}
 \item Simulate times $T_{1}$ and $T_{2}$ from Poisson processes with intensities
       $\lambda_{1}(\phi(x, t))$ and $\lambda_{2}(\phi(x, t))$ respectively.
@@ -405,8 +405,8 @@ We can then simulate our PDMP started at $x$ follows:
 The above procedure generalises trivially to cases where we have $n$ different Markov kernels
 instead of just 2.
 
-The opportunity for more efficient simulation arise
-from the Poisson process simulation by the composition method introduced in
+The opportunity for more efficient simulation arises
+from the composition method for Poisson process simulation introduced in
 Section~\ref{non-hom-pp-background}.
 This technique, however, cannot be applied directly. Even though we can decompose
 our intensity function as $\lambda(x) = \sum_{i=1}^{n} \lambda_{i}(x)$, the
@@ -449,7 +449,7 @@ We formalise this idea, by defining a function:
 which maps a set of variables (denoted by their indices) to an expanded
 set of variables, by including the variables which will be afected by $\phi$,
 as a result of a change to a variable in $S$ (obviously, changing a variable in $S$ affects a variable in $S$,
-which is why we have $\forall S \in \mathcal{P}(\mathbb{N})\,S \subset \text{Dep}_{\phi}(S)$.)
+which is why we have $\forall S \in \mathcal{P}(\mathbb{N})\,S \subseteq \text{Dep}_{\phi}(S)$.)
 For example, for the flow given in the Equation~\ref{flow-simple-dependencies-example}, we have:
 \mbox{$\text{Dep}_{\phi}(\{1\}) = \{1, 2\}$} and \mbox{$\text{Dep}_{\phi}(\{2\}) = \{2\}$}.
 
@@ -470,7 +470,13 @@ This finishes one iteratrion of our PDMP simulation.
 Assume that the jump has modified the state space variables from some set
 $S$. Then to simulate the next iteration, we can reuse the time $T_{i}$ (shifted by $T_{k}$, of course),
 if $i \neq k$ and evaluating $\lambda_{i}(x)$ does not depend on any of the variables from the
-set $\text{Dep}_{\phi}(S)$.
+set $\text{Dep}_{\phi}(S)$. We would like to conclude this section by drawing the
+reader's attention to the fact, that the independence between separate components
+of our PDMPs is not a symmetric relation. To see that, consider a component, whose
+intensity is simply a constant, but whose associated Markov kernel modifies all
+state space variables. Such component does not depend on any of the other components,
+while all the other components depend on it.
+
 
 \section{Implementing efficient policies}
 \label{efficient-policies-implementation}
