@@ -1,0 +1,143 @@
+\documentclass[report.tex]{subfiles}
+
+\begin{document}
+
+\chapter{The Metropolis-Hastings Algorithm}
+\label{appendix-metropolis-hastings}
+
+In this section we will introduce on of the most important Monte Carlo
+algorithms -- the Metropolis-Hastings algorith (see Chapter~\ref{chapter1-introduction}
+for a brief history).
+We mainly refer to \cite{liu2008monte} for presenting the following material.
+
+Suppose we want to generate samples from a given probability density function\footnote{
+  More precisely, we want to draw samples from some probability measure
+  defined on a Borel $\sigma$-algebra $\mathcal{B}(\mathbb{R}^{d})$. We assume
+  that this probability measure is absolutely continuous with respect to the
+  Lebesgue measure, so that the probability density function $\pi$ exists.
+  We will be implicitly making such an assumption throughout the whole text.
+}
+$\pi$ defined over $\mathbb{R}^{d}$. In most
+realistic cases we can only pointwise evaluate some other function $\gamma$ which
+satisfies $\gamma(x) \propto \pi(x)$.
+The normalising constant
+$\myint{\mathbb{R}^{d}}{}{\gamma(x)}{x}$ is usually unknown and impractical
+to compute.
+In traditional Markov chain analysis, one's goal is often to calculate
+the stationary distribution once the Markov transition kernel is given.
+In contrast, the idea of the Metropolis-Hastings algorithm is to
+simulate a Markov chain using a carefully chosen transition kernel,
+so that the resulting invariant distribution is $\pi$.
+We will now explain this algorithm
+(the pseudocode is given in Algorithm~\ref{alg-metropolis-hastings})
+and prove its correctness.
+
+Let $\{q(\,\cdot\, \vert x) \mid x \in \mathbb{R}^d\}$
+be a family of probability density functions satisfying
+$\forall x,y \in \mathbb{R}^{d}\ q(x \vert y) > 0 \Leftrightarrow q(y \vert x) > 0$.
+Assume that we can easily generate random samples from these densities.
+Once our Markov chain is at state $x$, we propose a new state
+$y \sim q(\,\cdot\, \vert x)$ which is accepted with probability
+$r(x, y)$. The acceptance rate function $r$ is chosen in such a way as to
+ensure that the invariant distribution of our Markov chain is $\pi$.
+
+
+In the original paper by \citet{metropolis1953equation}
+only symmetric proposal densities were considered in the sense that
+$\forall x,y \in \mathbb{R}^{d}\ q(x \vert y) = q(y \vert x)$
+and it was suggested to use:
+\begin{equation}
+  \label{metropolis-acceptance-rate}
+  r(x, y)
+  = \text{min}\left\{1, \frac{\gamma(y)}{\gamma(x)} \right\}
+  = \text{min}\left\{1, \frac{\pi(y)}{\pi(x)} \right\}.
+\end{equation}
+It is easy to explain this acceptance rate function --
+if we propose a new state, which moves
+to a region with higer probability density with respect to $\pi$, we accept
+that state with probability $1$. Otherwise, we reject the proposed state with
+some positive probability, which increases as the proposed state gets "worse"
+relative to the current state.
+However, if the proposal densities are not symmetric, the invariant distribution
+of the Markov chain generated using such procedure need not be $\pi$.
+Indeed, suppose that all proposal densities
+are strongly biased towards some small but very high probability
+region with respect to $\pi$ (e.g. if $\pi$ is a standard Gaussian
+distribution, while all proposal distributions are centered Gaussian with
+marginal variances very close to $0$).
+Then nearly all proposals will be concentrated very close to the origin and will be
+accepted with a very high probability.
+As a result, our Markov chain's invariant distribution will overrepresent that
+high probability region and thus will be different from $\pi$.
+This issue was addressed by \citet{hastings1970monte} where the following
+acceptance rate function was suggested:
+\begin{equation}
+  \label{hastings-acceptance-rate}
+  r(x, y)
+  = \text{min}\left\{1, \frac{\gamma(y)q(x \vert y)}{\gamma(x)q(y \vert x)} \right\}
+  = \text{min}\left\{1, \frac{\pi(y)q(x \vert y)}{\pi(x)q(y \vert x)} \right\}.
+\end{equation}
+The new term $q(x|y)/q(y|x)$ compensates for the flow bias
+introduced by the family of our proposal distributions.
+
+A formal proof showing that the acceptance rate function given by
+Equation~\ref{hastings-acceptance-rate} guarantees $\pi$ to be the invariant distribution
+of our simulated Markov chain is surprisingly simple. Let $T(x,\cdot\,)$ be the
+transition density function once our Markov chain is at state $x$.
+For $x \neq y$, we make a transition from $x$ to $y$ if we propose to move
+to state $y$ and also accept this move.
+Hence for $x \neq y$ we have $T(x,y) = q(y \vert x) r(x, y)$ and thus:
+\begin{equation*}
+\begin{split}
+  \pi(x)T(x,y)
+  &= \pi(x)q(y \vert x)
+     \text{min}\left\{1, \frac{\pi(y)q(x \vert y)}{\pi(x)q(y \vert x)} \right\} \\
+  &= \text{min}\left\{ \pi(x)q(y \vert x), \pi(y)q(x \vert y) \right\}.
+\end{split}
+\end{equation*}
+Since the right hand side is symmetric in $x$ and $y$
+it follows that the \textit{detailed balance} equations hold:
+\begin{equation*}
+  \forall x, y \in \mathbb{R}^{d}\  \pi(x)T(x, y) = \pi(y)T(y, x).
+\end{equation*}
+We further deduce that
+\begin{equation*}
+    \myint{}{}{\pi(x)T(x, y)}{x}
+  = \myint{}{}{\pi(y)T(y, x)}{x}
+  = \pi(y) \myint{}{}{T(y, x)}{x}
+  = \pi(y),
+\end{equation*}
+which proves that $\pi$ is an invariant distribution of our
+\textit{reversible} Markov chain. Showing that the resulting Markov chain is
+also ergodic (i.e., a Markov chain for which the law of large numbers holds)
+is somewhat more complicated and we refer an interested reader
+to \citet[Chapter 6]{robert2005monte}.
+
+An obvious difficulty of the Metropolis-Hastings algorithm is choosing the
+family of proposal distributions -- a choice which does not capture the main
+properties of the target distribution $\pi$ will lead to very slow
+exploration of the state space.
+It is also noteworthy to mention that unlike in ordinary Monte Carlo techniques,
+the samples generated by MCMC algorithms are correlated, which makes output
+analysis harder. We will discuss how the efficiency of correlated samples can be
+calculated once we introduce our MCMC algorithms analysis framework.
+
+\begin{algorithm}
+\caption{The Metropolis-Hastings algorithm}
+\label{alg-metropolis-hastings}
+\begin{algorithmic}
+  \State{$\text{Initialize}\ x_{0}\
+         \text{arbitrarily on the support of target distribution}\ \pi$}
+  \For{$i = 1, 2, \dots$}
+    \State{$\text{Generate}\ y \sim q(\,\cdot\, \vert x_{i-1})$}
+    \State{$\text{Generate}\ U \sim \text{Uniform}(0, 1)$}
+    \If{$U \leq \text{min}\left\{1, \frac{\gamma(y)q(x \vert y)}{\gamma(x)q(y \vert x)} \right\} $}
+      \State{$x_{i} \gets y$}
+    \Else
+      \State{$x_{i} \gets x_{i-1}$}
+    \EndIf
+  \EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}
