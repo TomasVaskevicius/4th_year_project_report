@@ -53,20 +53,20 @@
     \put(0.70739474,0.97568782){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{N}}}%
     \put(0.80205014,0.97568782){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{N}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=2]{ch3-uml-diagram.pdf}}%
-    \put(0.50284624,0.95418093){\color[rgb]{0,0,0}\rotatebox{61.87701037}{\makebox(0,0)[lb]{\smash{asks which factors need resimulation}}}}%
+    \put(0.50284624,0.95418093){\color[rgb]{0,0,0}\rotatebox{61.87701037}{\makebox(0,0)[lb]{\smash{Asks which factors need resimulation}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=3]{ch3-uml-diagram.pdf}}%
     \put(0.07417235,1.37733322){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.12491202\unitlength}\centering Events Scheduler\end{minipage}}}%
     \put(0.77373449,1.37925073){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.17543911\unitlength}\centering Dependencies Graph\end{minipage}}}%
-    \put(0.03389772,0.31323999){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.20775688\unitlength}\centering The Flow Policy\end{minipage}}}%
-    \put(0.3622992,0.32793701){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.27547025\unitlength}\centering The Poisson Process Policy\end{minipage}}}%
-    \put(0.74337516,0.3279375){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.2385357\unitlength}\centering The Markov Kernel Policy\end{minipage}}}%
-    \put(0.3815353,0.10977544){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.23699673\unitlength}\centering The PDMP Host Class\end{minipage}}}%
+    \put(0.03285845,0.31096048){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.20775688\unitlength}\centering Flow\end{minipage}}}%
+    \put(0.36169057,0.31095843){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.27547025\unitlength}\centering Poisson Process\end{minipage}}}%
+    \put(0.74328329,0.31095892){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.2385357\unitlength}\centering Markov Kernel\end{minipage}}}%
+    \put(0.38075441,0.09527159){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.23699673\unitlength}\centering PDMP\end{minipage}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=4]{ch3-uml-diagram.pdf}}%
     \put(0.26397046,0.68858866){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.12878046\unitlength}\centering A total of N edges \\ ...\end{minipage}}}%
     \put(0.67103067,0.71192301){\color[rgb]{0,0,0}\rotatebox{90}{\makebox(0,0)[lt]{\begin{minipage}{0.03385668\unitlength}\centering FactorNode\end{minipage}}}}%
     \put(0.76896706,0.67370677){\color[rgb]{0,0,0}\rotatebox{90}{\makebox(0,0)[lt]{\begin{minipage}{0.03385668\unitlength}\centering MarkovKernelNode\end{minipage}}}}%
     \put(0.86690427,0.70000672){\color[rgb]{0,0,0}\rotatebox{90}{\makebox(0,0)[lt]{\begin{minipage}{0.02923984\unitlength}\centering VariableNode\\ \end{minipage}}}}%
     \put(0.86876343,1.0030901){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.152355\unitlength}\centering State space dim\end{minipage}}}%
-    \put(-0.01153142,1.0895694){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.18928961\unitlength}\centering The managed events\end{minipage}}}%
+    \put(-0.01153142,1.0895694){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.18928961\unitlength}\centering Managed events\end{minipage}}}%
   \end{picture}%
 \endgroup%
