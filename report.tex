@@ -19,6 +19,7 @@
 \usepackage{physics}
 \usepackage{listings}
 \usepackage{float}
+\usepackage{sidecap}
 
 % Formatting for \chapter command.
 \titleformat{\chapter}[block]
@@ -40,6 +41,8 @@
 \include{mymacros}
 
 \DeclareGraphicsExtensions{.png}
+
+\sidecaptionvpos{figure}{c}
 
 % Remove colon after line numbers in pseudocode algorithms.
 \algrenewcommand\alglinenumber[1]{\footnotesize #1}

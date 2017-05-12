@@ -456,11 +456,12 @@ For example, for the flow given in the Equation~\ref{flow-simple-dependencies-ex
 We are now ready to formulate sufficient conditions
 for the independence of Poisson processes. Let the generator of our PDMP be given
 by:
-\begin{equation*}
+\begin{equation}
+  \label{pdmp-generator-n-components}
   \mathcal{A}f(x) =
   \dv{}{t}f(\phi(x, t)) \Bigr|_{t = 0} +
   \sum_{i=1}^{n} \lambda_{i}(x)\myintNoVariable{\mathbb{R}^{d}}{}{}{(f(y) - f(x))\mathcal{Q}_{i}(x, dy)}.
-\end{equation*}
+\end{equation}
 Further assume, that for $i = 1, 2, \dots, n$
 we have simulated times $T_{i}$ distributed as the first events of Poisson processes
 with intensities $t \mapsto \lambda_{i}(\phi(x, t))$.
@@ -474,14 +475,243 @@ set $\text{Dep}_{\phi}(S)$. We would like to conclude this section by drawing th
 reader's attention to the fact, that the independence between separate components
 of our PDMPs is not a symmetric relation. To see that, consider a component, whose
 intensity is simply a constant, but whose associated Markov kernel modifies all
-state space variables. Such component does not depend on any of the other components,
+state space variables. Such a component does not depend on any of the other components,
 while all the other components depend on it.
 
 
 \section{Implementing efficient policies}
 \label{efficient-policies-implementation}
 
+Now that we know how to exploit the structure of PDMPs, we can start thinking about
+the implementation.
+The main problem we face is in representing different components of our PDMP
+and calculating dependencies between them, while keeping the policies of our
+framework as loosely coupled as possible.
+It is particularly challenging, because we need all the policies to communicate in some way.
+The Poisson process simulator needs to know the set of variables $S$ modified by
+the last jump implemented by the Markov kernel policy.
+It further needs a way to acces the $\text{Dep}_{\phi}$ function, which naturally
+belongs to the flow policy implementation.
+Finally, the Markov kernel policy needs to be aware of which Poisson process
+intensity factors $\lambda_{i}$ were responsible for the resulting jump times, in order to invoke
+the appropriate Markov kernel components $\mathcal{Q}_{i}$.
+We solve these problems by introducing a concept of the \textit{dependencies graph}.
 
+The dependencies graph will know about everything.
+It will know what the flow policy is being used (in order to access $\text{Dep}_{\phi}$),
+it will know about each individual Markov kernel component $\mathcal{Q}_{i}$,
+it will know about the details of Poisson process simulation for each intensity
+factor $\lambda_{i}$ and finally, it will be able to calculate which components of our PDMP
+depend on one another.
+The user of our library will, however, be able to specify each part of
+the process separatelly, so that the modularity of our framework is not lost.
+Indeed, the flexibility can be demonstrated by noting that
+our PDMP host class remains completely agnostic of the existence
+of this dependencies graph, as we shall see shortly.
+
+Our graph will consist of three types of nodes (see Figure~\ref{image-dependencies-graph}
+for a graphical representation):
+\begin{enumerate}
+  \item \textit{Markov kernel nodes}. Each node of this type represents the Markov
+    kernel component $\mathcal{Q}_{i}$ and holds the indices of all state space variables,
+    which can be modified by this kernel.
+  \item \textit{Variable nodes}
+    These nodes only know hold the indices of intensity factors $\lambda_{i}$,
+    which depend on the state space variable represented by such a node.
+  \item \textit{Factor nodes}
+    This is the most complex type of node.
+    It is responsible for the Poisson process time generation associated to
+    the intensity factor of $\lambda_{i}$. It also holds the process state space
+    variable indices, which are needed to evaluate $\lambda_{i}$. Finally, it
+    can optionally provide access for pointwise evaluation of $\lambda_{i}$, if
+    needed.
+\end{enumerate}
+
+
+\begin{SCfigure}
+  \centering
+  \includegraphics[width=.5\textwidth]{img/ch3-dependencies-graph}
+  \caption{A graphical representation of an imaginary dependencies graph for
+           a PDMP on a $4$-dimensional position-velocity state space.
+           The arrows represent the dependencies between the nodes.
+           The vertical arrows between the state space variables are
+           induced by $\text{Dep}_{\phi}$ function (in this case
+           $\phi$ is the linear flow, whose implementation is given in
+           Listing~\ref{linear-flow-implementation}).
+           The red nodes and edges depict the procedure
+           for finding which factors need to be resimulated, after invocation
+           of a specific Markov kernel (which is $\mathcal{Q}_{2}$ in this image).}
+  \label{image-dependencies-graph}
+\end{SCfigure}
+
+We will now describe how to incorporate this graph into our PDMP framework.
+It is indeed very easy to do: we simply instantiate the Markov kernel and the Poisson process
+policies, by giving the graph via a constructor argument.
+Both policies can then decide exactly what they need to take from the graph in order
+to set up its state. In our implementation, the Markov kernel policy simply
+takes all the Markov kernel nodes, while the Poisson process policy takes the
+factor nodes and will repeatedly query the graph for the dependencies between
+the Poisson processes. There are implicit assumptions that the user of the
+library has to be avare of. We assume that the generator of the process is
+of the form given in Equation~\ref{pdmp-generator-n-components}, so that the
+number of factor and Markov kernel nodes must be the same (our implementation
+perform compile-time checking of this assumption), and $i$-th factor
+node corresponds to the $i$-th Markov kernel. Also, the number
+of variable nodes has to be equal to the dimensionality of the process
+state space.
+Finally, the flow policy needs to extend its interface
+to support for $\text{Dep}_{\phi}$ calculation (not shown here, see the code
+repository for details). A particularly nice feature of C++ class templates
+is that if a method of some template class is never called, the compiler ignores it
+so that it does not even appear in the resulting binary.
+So extending the flow interface does not impose any performance penalties
+for PDMP simulations which do not require such functionality.
+
+The interface of the dependencies graph is given in Listing~\ref{listing-dependencies-graph}.
+There is the last design choice to consider regarding the dependencies graph.
+One way to do the dependencies calculations is to look at the variables
+modified by the markov Kernel at every iteration of the process and simply
+find i
+
+
+\begin{lstfloat}
+\caption{An interface of the dependencies graph.}
+\label{listing-dependencies-graph}
+\begin{lstlisting}
+template<
+  int N, int StateSpaceDim,
+  class MarkovKernelNodeType, class VariableNodeType, class FactorNodeType>
+class DependenciesGraph {
+ public:
+
+  using MarkovKernelNodes = array<shared_ptr<MarkovKernelNodeType>, N>;
+  using VariableNodes = array<shared_ptr<VariableNodeType>, StateSpaceDim>;
+  using FactorNodes = std::array<std::shared_ptr<FactorNode_t>, N>;
+
+  // Create the graph by simply providing the nodes.
+  DependenciesGraph(
+    const MarkovKernelNodes& markovKernelNodes,
+    const VariableNodes& variableNodes,
+    const FactorNodes& factorNodes);
+
+  template<class Flow = LinearFlow>
+  const std::vector<int>& getFactorDependencies(int factorId);
+
+  const MarkovKernelNodes markovKernelNodes;
+  const VariableNodes variableNodes;
+  const FactorNodes factorNodes;
+};
+\end{lstlisting}
+\end{lstfloat}
+
+
+\begin{lstfloat}
+\caption{The implementation of Markov kernel nodes.}
+\label{markov-kernel-nodes-implementation}
+\begin{lstlisting}
+template<class State>
+struct MarkovKernelNodeBase {
+  ~MarkovKernelNodeBase() = default;
+  virtual State jump(const State& state) = 0;
+  const std::vector<int> dependentVariableIds;
+};
+
+template<class State, class JumpFunctor>
+class MarkovKernelNode : public MarkovKernelNodeBase<State> {
+ public:
+
+  MarkovKernelNode(
+    const std::vector<int>& dependentVariableIds,
+    const JumpFunctor& jumpFunctor);
+
+  virtual State jump(const State& state) override final {
+    auto stateSubvector = state.getSubvector(this->dependentVariableIds);
+    auto modifiedSubvector = this->jumpFunctor_(stateSubvector);
+    return state.constructStateWithModifiedVariables(
+      this->dependentVariableIds, modifiedSubvector);
+  }
+
+ private:
+  JumpFunctor jumpFunctor_;
+};
+
+// The client code can then create the nodes as follows:
+auto jumpKernel = [] (auto stateSubvector) -> {
+  ... // Do something with stateSubvector.
+  return modifiedStateSubvector;
+};
+MarkovKernelNodeBase* = new MarkovKernelNode<decltype(jumpKernel)>(
+    {1, 2}, // Specify the variable indices on which this kernel acts.
+    jumpKernel);
+
+\end{lstlisting}
+\end{lstfloat}
+
+
+\begin{lstfloat}
+\caption{The Poisson process policy based on the dependencies graph.}
+\label{main-poisson-process-policy-implementation}
+\begin{lstlisting}
+template<
+  class DependenciesGraph,
+  template<class> class EventScheduler = PriorityQueueEventScheduler>
+class PoissonProcessPolicy {
+ public:
+
+  // Provide the dependencies graph via a constructor argument.
+  PoissonProcess(DependenciesGraph graph);
+
+  // The method which will be invoked by the PDMP host class.
+  template<class State, class HostClass>
+  auto getJumpTime(const State& state, const HostClass& hostClass) {
+    resimulateEventsForFactors(factorsToResimulate_);
+    while (true) {
+      Event event = eventScheduler_.pop();
+      int factorId = event.factorId;
+      if (!event.isValid) {
+        // This event was invalidated because a new event was
+        // simulated for this factorId.
+        continue;
+      }
+      if (!event.shouldAccept()) {
+        // Event was rejected due to the Poisson process thinning step.
+        resimulateEventForFactor(factorId);
+        continue;
+      }
+      // Found an event that is valid and not rejected.
+      factorsToResimulate_ =
+        graph_.getFactorDependencies<HostClass::FlowPolicy>(factorId);
+      auto iterationTime = event.time - currentTime_;
+      currentTime_ = event.time;
+      return iterationTime;
+    }
+  }
+
+  // This method will be accessed by the Markov kernel policy.
+  int getLastFactorId() const;
+
+ private:
+  EventScheduler<Event> eventScheduler_;
+  DependenciesGraph graph_;
+  vector<int> factorsToResimulate_;
+  double currentTime_ = 0.0f;
+};
+\end{lstlisting}
+\end{lstfloat}
+
+
+\begin{figure}
+  \centering
+  \def\svgwidth{.95\linewidth}
+  \input{ch3-uml-diagram.pdf_tex}
+  %\includegraphics[width=0.9\textwidth]{img/ch3-uml-diagram}
+  \caption{A UML diagram depicting the final design of our PDMPs simulation framework.
+           The dashes lines represent pointers, edges ending in a white triangle
+           represent inheritance, edges with a diamond shaped ending the
+           has-a relationship. Red circles represent the events not yet removed
+           from the events schedulerr, but who have already been invalidated.}
+  \label{image-uml-diagram-dependencies-graph-based-design}
+\end{figure}
 
 Dependencies graph\\
 Resolve at runtime vs caching? We choose caching, since we can always split up Markov kernels as much as we want.\\
@@ -491,9 +721,33 @@ Class diagram
 
 \section{Testing}
 
-Gtest and gmock. \\
-Unit testing with mocked dependencies. \\
-Integration tests. \\
-Mocking RNGs.
+The importance of writing automated tests for any kind of software cannot be overstated.
+As the project grows in size, small code changes can have seemingly unexpected consequences.
+It becomes hard to reason about the correctness of our code and as a result,
+subtle bugs get introduced to the production code, which can be especially hard to
+track down later. To help alleviate these problems, we turn to unit and integration testing,
+which will try to make sure, that any future changes to the code will not break the
+correctness conditions.
+
+We use Google's googletest\footnote{
+See https://github.com/google/googletest.}
+framework for writing tests and mocking objects.
+At first we test each of the individual component discussed in this chapter, by
+replacing their dependencies with mock copies, whose behaviour can be controlled precisely.
+This idea is at the heart of unit testing -- we are able to test the correctness of a
+specific component regardless of the correctness of its dependencies
+(and the dependencies of its dependencies, for that matter).
+Next, we write integration tests to see if the components behave correctly as a unit.
+An interesting issue arises in our case, because we want to test an inherently random
+processes. The process outcome is hence allowed to be different during different
+runs, which makes testing harder.
+We resolve this issue by mocking the random number generators (RNG), then performing
+a short simulation by hands (using the mock RNG output, which we can set up ourselves)
+and test if they match our process output.
+
+We have tried to cover as much of the edge cases as possible by writing tests
+for the PDMPs framework discussed in this section. A total of 35 test cases were
+written, the source code of which can be found in tests/core directory of the
+project's GitHub page.
 
 \end{document}
