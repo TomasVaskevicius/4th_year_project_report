@@ -2,7 +2,141 @@
 
 \begin{document}
 
-\chapter{The Bouncy Particle Sampler}
-\label{chapter-bouncy-particle-sampler}
+\chapter{Building a Framework for Output Analysis}
+\label{output-analysis-framework}
+
+In the previous chapter we designed and implemented a flexible and efficient
+library for creating arbitrary PDMPs.
+Assume that a user of our library wants to test a new MCMC algorithm based on
+a PDMP.
+A natural workflow would then be building the process in our framework,
+outputting the results to a text file and then loading them with, for example,
+R or Python to analyse the output.
+The shortcomings of such an approach are easy to see --
+by outputting the simulation results to a text file we lose all the information
+about the state space representation and what the deterministic flow function of the
+process is.
+This information is necessary to recreate the full process (from the points at event times)
+so it would have to be reprogrammed in the tool used for analysing the output.
+Furthermore, due to the inherent randomness of our process, doing statistical
+analysis requires simulating the same process a number of times.
+These days, even the cheapest laptops have at least 4 logical processors, with the more
+expensive ones reaching 8.
+It would therefore be nice, if there was some easy way to use all the cores to run
+independent processes, turning an experiment that could take a few days into a
+simple overnight simulation.
+The message is clear - our PDMPs framework on its own is not that useful.
+In this chapter, we will extend our library with support for analysing the
+output\footnote{The code for this chapter can be found at the project's GitHub
+repository int the src/analysis/ directory.}.
+Once again, our main focus is flexibility -- we want out output analysis utilities
+to be easily extendable and customisable by the client for its special needs.
+
+\section{Analysis utilities}
+Lets first discuss the simplest tools that are necessary to do any kind of analysis
+on the output of our processes.
+
+\begin{enumerate}
+  \item \textit{Support for running multiple processes in parallel}. This is very
+    simple to do, since our separate processes will be independent from each other
+    and will require no communication.
+    Since the C++11 language standard, support for multithreading was added.
+    We use it to write a simple function,
+    which accepts a set of callable objects (e.g. lambda functions),
+    executes them all in parallel\footnote{To avoid unnecessary overhead
+    (e.g. context switching), we of course do not run more threads at a time
+    than the number of available logical processors.} and collects the results.
+
+  \item \textit{Support for visual analysis}.
+    Since there is no built-in support for plotting graphs in C++, we use
+    QCustomPlot \cite{qcustomplot-library} -- an open source library, built on top of Qt
+    \cite{qt-library}, for plotting and data visualisation.
+    We added wrappers around this library for easy plotting of line graphs,
+    box plots and our simulated process' sample path (for the 2-dimensional case only).
+
+  \item \textit{Support for numerical integration}.
+    Recall, that the main motivation behind our framework is MCMC algorithms.
+    As discussed in Chapter~\ref{mcmc-motivation}, we will want to use the output
+    of our process to compute certain expectation.
+    Since our algorithms output continuous trajectories rather than discrete samples
+    from the target distribution, summation in the strong law of large numbers estimator
+    becomes integration. We hence need tools for efficient one dimensional integraton.
+    As a result, we added a GSL \cite{gsl-library} -- a C library for scientific computing
+    which has an implementation of Gaussian quadrature.
+    We implemented wrappers around the C API for easy and idiomatic C++ use.
+
+  \item \textit{Support for timing}.
+    Roughly speaking, one algorithm is better than the other, if it performs
+    the same task faster. Hence it is natural that we need tools to easily time
+    (possibly specific parts only) of our processes. Care must be taken when choosing the
+    timing technique. One possibility is to use the wall-clock time.
+    It is, however, very susceptible to noise due to operating system's activities.
+    Another way is to use the CPU time. It has a downside, however, that an
+    algorithm effectively using many cores and finishing much faster than another
+    algorithm using one core only, may have, for instance, equal CPU times.
+    All the algorithms in our project will run on one core only. We will want to run
+    many independent processes at the same time using separate threads. Hence, we
+    provide a wrapper around a timer measuring CPU time separately for each thread.
+    Clients of our library may implement their own timers and use them with the existing code
+    by simply changing template parameters, where appropriate.
+\end{enumerate}
+
+\section{Running the process}
+
+So far, our PDMPs' host class interface only support simulation of one iteration
+of the process.
+Every user of our library thus has to write their own code for running the whole process
+and deciding when to stop. This is clearly unacceptable, since many people would be
+writing essentially the same code.
+To solve this, we implement a separate class capable of running any PDMP\footnote{
+  The runner class is general enough to run any kind of PDMP, not even necessarily built
+  using our own framework. We could thus wrap any other PDMP implemented in C++ to return
+  results compatible with our framework, and such third-party algorithm could fully benefit
+  from our analysis framework's functionality.
+}. We again reuse the policy-based design, by creating a host class for all runners
+and delegating the specific running and stopping decisions to its policy.
+The host class will be responsible for registration of \textit{output processors} to be
+introduced in the next section. We provide two running policies -- one for simply
+performing a fixed number of iterations, another for stopping the process after
+the specified amount of time (with extra support for
+burn-in\footnote{Running a Markov chain
+for a while and discarding its output. We hope that our process has converged to the invariant distribution
+during this time.
+} and excluding the time spent by the output processors.
+
+
+\section{Output processors}
+This is the most interesting decision we make in the output analysis framework's design.
+To the best of our knowledge, most of MCMC libraries' API only support generating
+a prespecified number of samples from the target probability distribution.
+Suppose we did that and we wanted to generated samples over $10^{4}$ dimensional space
+using single precision floating point numbers.
+Then, generating $25000$ samples would take at least $1$ GB of RAM. Running 8 such
+chains simultaneously, would require $8$ GB of RAM, which is the limit in most
+current laptop computers at the time.
+
+We do not need to save all the generated samples however. Some of the most useful
+output analysis statistics can be calculated by simply looping through the generated samples
+once. To solve our memory issue we can simply do our calculations while the process is running
+and discard the old samples which allows our analysis framework to use only $O(1)$ memory.
+We realise this idea by employing the \textit{Observer pattern} (see \citet{gamma1994design})
+-- we create a base class called \textit{observer} for classes implementing arbitrary
+calculations on the output of our process. Any class that inherits from the observer can register
+to our PDMPs runner class (the host class of all running policies will handle the registration of observers).
+Then, whenever the runner gets a new sample from the PDMP, it notifies all the observers
+with the obtained new value, thus allowing them to do the calculations online.
+Note that this design does not put any restrictions on the output analysis as one can implement
+an observer, which simply stores all the output into an array, or writes the output into
+a text file.
+
+We implement three output processors in our analysis framework -- expectations, autocorrelation
+and asymptotic variance calculators. The last one are quite tricky to implement online
+and requires some compromise. We refer an interested reader to Appendix~\ref{mcmc-output-analysis}
+for details on what autocorrelation and astymptotic variance is and why it
+is useful in output analysis of MCMC algorithms.
+See Figure~\ref{figure-analysis-framework-design} for a graphical representation
+of the analysis framework discussed in this chapter.
+
+
 
 \end{document}
