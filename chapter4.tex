@@ -9,18 +9,18 @@ In the previous chapter we designed and implemented a flexible and efficient
 library for creating arbitrary PDMPs.
 Assume that a user of our library wants to test a new MCMC algorithm based on
 a PDMP.
-A natural workflow would then be building the process in our framework,
-outputting the results to a text file and then loading them with, for example,
-R or Python to analyse the output.
+A natural research workflow could then go as follows: first, we build the process
+using our framework, then, we output the results to a text file and finally, we load
+them with, for example, R or Python to analyse the output.
 The shortcomings of such an approach are easy to see --
 by outputting the simulation results to a text file we lose all the information
 about the state space representation and what the deterministic flow function of the
 process is.
-This information is necessary to recreate the full process (from the points at event times)
+This information is necessary in order to recreate the complete process trajectory (from the points at event times)
 so it would have to be reprogrammed in the tool used for analysing the output.
 Furthermore, due to the inherent randomness of our process, doing statistical
 analysis requires simulating the same process a number of times.
-These days, even the cheapest laptops have at least 4 logical processors, with the more
+These days, even the cheapest laptop computers have at least 4 logical processors, with the more
 expensive ones reaching 8.
 It would therefore be nice, if there was some easy way to use all the cores to run
 independent processes, turning an experiment that could take a few days into a
@@ -33,7 +33,7 @@ Once again, our main focus is flexibility -- we want out output analysis utiliti
 to be easily extendable and customisable by the client for its special needs.
 
 \section{Analysis utilities}
-Lets first discuss the simplest tools that are necessary to do any kind of analysis
+Let's first discuss the simplest tools that are necessary to do any kind of analysis
 on the output of our processes.
 
 \begin{enumerate}
@@ -57,11 +57,12 @@ on the output of our processes.
   \item \textit{Support for numerical integration}.
     Recall, that the main motivation behind our framework is MCMC algorithms.
     As discussed in Chapter~\ref{mcmc-motivation}, we will want to use the output
-    of our process to compute certain expectation.
+    of our process to compute certain expectations.
     Since our algorithms output continuous trajectories rather than discrete samples
     from the target distribution, summation in the strong law of large numbers estimator
     becomes integration. We hence need tools for efficient one dimensional integraton.
-    As a result, we added a GSL \cite{gsl-library} -- a C library for scientific computing
+    As a result, we added the GNU Scientific Library (GSL) \cite{gsl-library} --
+    a C library for scientific computing
     which has an implementation of Gaussian quadrature.
     We implemented wrappers around the C API for easy and idiomatic C++ use.
 
@@ -71,19 +72,19 @@ on the output of our processes.
     (possibly specific parts only) of our processes. Care must be taken when choosing the
     timing technique. One possibility is to use the wall-clock time.
     It is, however, very susceptible to noise due to operating system's activities.
-    Another way is to use the CPU time. It has a downside, however, that an
+    Another option is to use the CPU time. It has a downside, however, that an
     algorithm effectively using many cores and finishing much faster than another
     algorithm using one core only, may have, for instance, equal CPU times.
     All the algorithms in our project will run on one core only. We will want to run
     many independent processes at the same time using separate threads. Hence, we
     provide a wrapper around a timer measuring CPU time separately for each thread.
     Clients of our library may implement their own timers and use them with the existing code
-    by simply changing template parameters, where appropriate.
+    by simply changing template parameters where appropriate.
 \end{enumerate}
 
 \section{Running the process}
 
-So far, our PDMPs' host class interface only support simulation of one iteration
+So far, our PDMPs' host class interface only supports simulation of one iteration
 of the process.
 Every user of our library thus has to write their own code for running the whole process
 and deciding when to stop. This is clearly unacceptable, since many people would be
@@ -94,46 +95,48 @@ To solve this, we implement a separate class capable of running any PDMP\footnot
   results compatible with our framework, and such third-party algorithm could fully benefit
   from our analysis framework's functionality.
 }. We again reuse the policy-based design, by creating a host class for all runners
-and delegating the specific running and stopping decisions to its policy.
-The host class will be responsible for registration of \textit{output processors} to be
-introduced in the next section. We provide two running policies -- one for simply
+and delegating the specific running and stopping decisions to its policy class.
+The host class will be responsible for registration of \textit{output processors}, which we will
+introduce in the next section. We provide two running policies -- one for simply
 performing a fixed number of iterations, another for stopping the process after
-the specified amount of time (with extra support for
-burn-in\footnote{Running a Markov chain
+the specified amount of time (with extra support for the
+\textit{burn-in}\footnote{Running a Markov chain
 for a while and discarding its output. We hope that our process has converged to the invariant distribution
 during this time.
-} and excluding the time spent by the output processors.
+} time and optionally excluding the time spent by the output processors.
 
 
 \section{Output processors}
 This is the most interesting decision we make in the output analysis framework's design.
-To the best of our knowledge, most of MCMC libraries' API only support generating
-a prespecified number of samples from the target probability distribution.
-Suppose we did that and we wanted to generated samples over $10^{4}$ dimensional space
+To the best of our knowledge, most of MCMC libraries' APIs only support generating
+a pre-specified number of samples from the target probability distribution.
+Suppose we also did that and that we want to generated samples over $10^{4}$ dimensional space
 using single precision floating point numbers.
 Then, generating $25000$ samples would take at least $1$ GB of RAM. Running 8 such
 chains simultaneously, would require $8$ GB of RAM, which is the limit in most
-current laptop computers at the time.
+current laptop computers at the time. This puts severe limitations on the simulations that we can perform (without
+outputting samples to a hard drive).
 
-We do not need to save all the generated samples however. Some of the most useful
+Note, however, that we do not actually need to save all the generated samples. Some of the most useful
 output analysis statistics can be calculated by simply looping through the generated samples
-once. To solve our memory issue we can simply do our calculations while the process is running
+only once. To solve our memory issue we can simply do our calculations while the process is running
 and discard the old samples which allows our analysis framework to use only $O(1)$ memory.
 We realise this idea by employing the \textit{Observer pattern} (see \citet{gamma1994design})
 -- we create a base class called \textit{observer} for classes implementing arbitrary
 calculations on the output of our process. Any class that inherits from the observer can register
-to our PDMPs runner class (the host class of all running policies will handle the registration of observers).
+to our PDMPs runner class.
 Then, whenever the runner gets a new sample from the PDMP, it notifies all the observers
 with the obtained new value, thus allowing them to do the calculations online.
 Note that this design does not put any restrictions on the output analysis as one can implement
 an observer, which simply stores all the output into an array, or writes the output into
-a text file.
+a text file, which would allow us to use the standard analysis techniques.
 
-We implement three output processors in our analysis framework -- expectations, autocorrelation
-and asymptotic variance calculators. The last one are quite tricky to implement online
-and requires some compromise. We refer an interested reader to Appendix~\ref{mcmc-output-analysis}
-for details on what autocorrelation and astymptotic variance is and why it
-is useful in output analysis of MCMC algorithms.
+We implement three output processors in our analysis framework -- expectation, autocorrelation
+and asymptotic variance calculators. The last two are quite tricky to implement online
+and require some compromise. We refer an interested reader to Appendix~\ref{mcmc-output-analysis}
+for details on what autocorrelation and astymptotic variance is, why it
+is useful in output analysis of MCMC algorithms and a brief explanation on how we calculate
+these quantities online.
 See Figure~\ref{figure-analysis-framework-design} for a graphical representation
 of the analysis framework discussed in this chapter.
 
@@ -144,7 +147,8 @@ of the analysis framework discussed in this chapter.
   \input{ch4-analysis-framework-uml.pdf_tex}
   \caption{A diagram representing the design of our output analysis framework.
            The output processors of choice have to register to the PDMP runner.
-           The runner notifies all of the processors with latest iteration results of the process.
+           The runner notifies all of the processors with latest iteration results of the PDMP which
+           is being simulated.
            The running policy and output processors can use our library's analysis utilities (e.g. timers).}
   \label{figure-analysis-framework-design}
 \end{figure}
