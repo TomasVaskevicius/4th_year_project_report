@@ -137,6 +137,16 @@ is useful in output analysis of MCMC algorithms.
 See Figure~\ref{figure-analysis-framework-design} for a graphical representation
 of the analysis framework discussed in this chapter.
 
-
+\begin{figure}
+  \captionsetup{skip=1.25cm}
+  \centering
+  \def\svgwidth{\linewidth}
+  \input{ch4-analysis-framework-uml.pdf_tex}
+  \caption{A diagram representing the design of our output analysis framework.
+           The output processors of choice have to register to the PDMP runner.
+           The runner notifies all of the processors with latest iteration results of the process.
+           The running policy and output processors can use our library's analysis utilities (e.g. timers).}
+  \label{figure-analysis-framework-design}
+\end{figure}
 
 \end{document}
