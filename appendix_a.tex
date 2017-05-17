@@ -35,11 +35,11 @@ One can easily verify that:
   \tau^{*} = \left( -\frac{\langle x, v \rangle}{\lVert v \rVert^{2}} \right)^{+}.
 \end{equation}
 
-Now lets see how we can use the Algorithm~\ref{alg-non-hom-pp-time-scale}
-(the time scale tr  ansformation algorithm)
+Now lets see how we can use Algorithm~\ref{alg-non-hom-pp-time-scale}
+(the time scale transformation algorithm)
 for simulating jump times of our PDMP. We first simulate
 $U \sim \text{Uniform}(0, 1)$
-and try to find smallest $\tau \geq 0$ such that
+and try to find the smallest $\tau \geq 0$ such that
 $$
 \myint{0}{\tau}{\lambda(\phi((x, v), t))}{t}
 = \myint{0}{\tau}{\left( \dv{}{t} \frac{\lVert x + vt \rVert^{2}}{2} \right)^{+}}{t}

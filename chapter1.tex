@@ -85,13 +85,13 @@ $p(x \vert \theta)$ and the \textit{prior distribution} over the parameters $p(\
 By observing the dataset $x$ we gain additional insight into the distribution of
 parameters $\theta$, which is summarised in the \textit{posterior distribution}
 $p(\theta \vert x)$.
-We can calculate the posterior distribution by applying the Bayes' theorem:
+We can calculate the posterior distribution by applying Bayes' theorem:
 \begin{equation*}
   p(\theta \vert x)
   = \frac{p(\theta, x)}{p(x)}
   = \frac{p(x \vert \theta)p(\theta)}{p(x)}.
 \end{equation*}
-Calculating $p(x)$ is also infeasible, except for the simplest models and hence
+Calculating $p(x)$ is also infeasible, except for the simplest models, and hence
 we usually only have access to an unnormalised posterior density:
 \begin{equation*}
   p(\theta \vert x) \propto p(x \vert \theta)p(\theta).
