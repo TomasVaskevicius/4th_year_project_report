@@ -20,11 +20,19 @@
 
 % Variance operator.
 \DeclareRobustCommand{\variance}[1]
-  {\ensuremath{Var\!\left[{#1}\right]}}
+  {\ensuremath{\mathrm{Var}\!\left[{#1}\right]}}
+
+% Covariance operator.
+\DeclareRobustCommand{\covariance}[2]
+  {\ensuremath{\mathrm{Cov}\!\left[{#1}, {#2}\right]}}
+
+% Correlation operator.
+\DeclareRobustCommand{\corr}[2]
+  {\ensuremath{\mathrm{Corr}\!\left[{#1}, {#2}\right]}}
 
 % Variance operator with specified distribution.
 \DeclareRobustCommand{\varianceWithDistribution}[2]
-  {\ensuremath{Var_{{#1}}\!\left[{#2}\right]}}
+  {\ensuremath{\mathrm{Var}_{{#1}}\!\left[{#2}\right]}}
 
 % The exponential function.
 \DeclareRobustCommand{\myexp}[1]
