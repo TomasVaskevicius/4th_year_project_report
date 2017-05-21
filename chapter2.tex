@@ -4,14 +4,14 @@
 
 \chapter{Background material}
 
-This chapter provides the material necessary for understanding the
-Bouncy Particle Sampler (BPS) algorithm which relies on simulation of a
-piecewise-deterministic Markov process.
-We introduce the material necessary
-for understanding the simulation and analysis of such processes.
-This chapter is complemented by Appendix~\ref{appendix-metropolis-hastings}
-where we also introduce the Metropolis-Hastings algorithm
--- a cornerstone for many MCMC algorithms including the BPS.
+In this chapter we provide the background material necessary for understanding the
+current MCMC algorithms which rely on simulation of
+piecewise-deterministic Markov processes.
+We further complement this chapter with Appendix~\ref{appendix-mcmc-background}
+where we provide motivation for using Monte Carlo techniques in the context of
+Bayesian statistics and
+introduce the Metropolis-Hastings algorithm
+-- a cornerstone for many MCMC algorithms including the Bouncy Particle Sampler.
 
 
 \section{Non-homogeneous Poisson processes simulation}
@@ -537,8 +537,6 @@ See Figure~\ref{image-pdmp-simple} for a sample simulation of this process.
 The Bouncy Particle Sampler is a very similar algorithm. By carefully choosing
 the jump rate function and the transition kernel, we will be able to guide our
 particle, so that the resulting invariant distribution is the one we want to sample from.
-We will see in Chapter~\ref{chapter-bouncy-particle-sampler} how the BPS algorithm
-was derived and why it works.
 
 \begin{figure}
   \begin{subfigure}{.5\textwidth}

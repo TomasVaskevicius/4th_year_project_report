@@ -2,10 +2,16 @@
 
 \begin{document}
 
-\chapter{Applications to MCMC algorithms}
-\label{chapter-bouncy-particle-sampler}
+\chapter{Applications to MCMC Algorithms}
+\label{chapter-mcmc-applications}
 
+In this chapter we show how the current PDMP based MCMC algorithms can be
+efficiently implemented by using our framework, namely, the Bouncy Particle
+Sampler \cite{bouchard2015bouncy} and the Zig-Zag process \cite{bierkens2016zig}.
+We further show how our analysis framework can assist in solving the current
+research problems.
 
+\section{The Bouncy Particle Sampler}
 
 \begin{figure}
   \captionsetup{skip=0.75cm}
@@ -51,8 +57,10 @@
            in \citet{bouchard2015bouncy} that with $\lambda_{\text{ref}} = 0$ the
            resulting Markov process need not be ergodic.
            See examples/path\_plotting/ in the project's GitHub repository for
-           reproducing these plots.}
+           reproducing these plots by using our analysis framework.}
   \label{image-bps-refresh-rates}
 \end{figure}
+
+\section{The Zig-Zag Process}
 
 \end{document}

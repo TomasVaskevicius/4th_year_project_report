@@ -316,7 +316,7 @@ class ToyMarkovKernel {
 class ToyPoissonProcessSimulator {
  public:
 
-  // See Appendix A for the derivation of the equations used here.
+  // See Appendix B for the derivation of the equations used here.
   template<class State, class HostClass>
   auto getJumpTime(State state, const HostClass& hostClassObject) {
     auto xv = state.position.dot(state.velocity);

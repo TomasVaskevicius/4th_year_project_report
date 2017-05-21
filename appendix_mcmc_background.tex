@@ -2,10 +2,76 @@
 
 \begin{document}
 
-\chapter{The Metropolis-Hastings Algorithm}
-\label{appendix-metropolis-hastings}
+\chapter{Background Material on MCMC Methods}
+\label{appendix-mcmc-background}
 
-In this chapter we will introduce on of the most important Monte Carlo
+\section{Motivation for Using Monte Carlo Simulations}
+\label{mcmc-motivation}
+
+In many scientific problems one has to compute an integral over some
+high-dimensional space.
+Finding a closed form representation is usually infeasible and numerical
+approximation techniques have to be used.
+As the dimensionality of the integral increases, most deterministic
+numerical integration techniques need to evaluate the integrand at exponentially
+more points thus making such algorithms computationally intractable.
+We will now briefly show how such integrals appear in Bayesian inference
+(which is the main motivation for this project)
+and how Monte Carlo techniques can be used to approximate
+them.
+
+In Bayesian statistics (see \citet{gelman2014bayesian} for a great introduction),
+a probability model is given by a joint
+probability distribution over the unobservable parameters of interest
+$\theta \in \Theta$
+(where the dimensionality of $\Theta$ is defined by our model)
+and observed data $x$.
+We define the model in terms of the \textit{likelihood function}
+$p(x \vert \theta)$ and the \textit{prior distribution} over the parameters $p(\theta)$:
+\begin{equation*}
+  p(\theta, x) = p(x \vert \theta)p(\theta).
+\end{equation*}
+By observing the dataset $x$ we gain additional insight into the distribution of
+parameters $\theta$, which is summarised in the \textit{posterior distribution}
+$p(\theta \vert x)$.
+We can calculate the posterior distribution by applying Bayes' theorem:
+\begin{equation*}
+  p(\theta \vert x)
+  = \frac{p(\theta, x)}{p(x)}
+  = \frac{p(x \vert \theta)p(\theta)}{p(x)}.
+\end{equation*}
+Calculating $p(x)$ is also infeasible, except for the simplest models, and hence
+we usually only have access to an unnormalised posterior density:
+\begin{equation*}
+  p(\theta \vert x) \propto p(x \vert \theta)p(\theta).
+\end{equation*}
+We can express our quantities of interest in terms of expectations of the form:
+\begin{equation*}
+  \exWithDistribution{\theta \sim p(\theta \vert x)}{f(\theta)}
+  = \myint{\Theta}{}{f(\theta)p(\theta \vert x)}{\theta}.
+\end{equation*}
+Now suppose we can draw random samples $\theta^{(1)}, \theta^{(2)}, \dots$
+from the posterior distribution $p(\theta \vert x)$.
+Then, using the \textit{strong law of large numbers} we can estimate
+the above integral by $S_{n} \coloneqq \frac{1}{n} \sum_{i = 1}^{n} f(\theta^{(i)})$.
+The \textit{central limit theorem} then tells us that
+\begin{equation*}
+  \sqrt{n}(S_{n} - \ex{\theta \sim p(\theta \vert x)}{f(\theta)})
+  \xrightarrow[]{d} N(0, \sigma^{2}),
+\end{equation*}
+where $N(0, \sigma^2)$ is a centred Gaussian random variable,
+$\sigma^2 := \varianceWithDistribution{\theta \sim p(\theta \vert x)}{f(\theta)}$
+and $\xrightarrow{d}$~denotes the convergence in distribution.
+Hence the asymptotic error rate $O(n^{-\frac{1}{2}})$ does not depend
+on the dimensionality of $\Theta$, which is the main advantage of the Monte Carlo
+techniques for approximating integrals.
+However, it is not fair to say that
+Monte Carlo algorithms beat the curse of dimensionality --
+drawing random samples from arbitrary distributions can be hard and the
+resulting variance of our estimator can also be unreasonably high.
+
+\section{The Metropolis-Hastings Algorithm}
+In this section we will introduce on of the most important Markov chain Monte Carlo
 algorithms -- the Metropolis-Hastings algorith (see Chapter~\ref{chapter1-introduction}
 for a brief history).
 We mainly refer to \citet{liu2008monte} for presenting the following material.
