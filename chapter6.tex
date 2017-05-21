@@ -4,4 +4,75 @@
 
 \chapter{Conclusion}
 
+In Section~\ref{project-goals-section} we have set a goal to build an
+\textit{efficient}, \textit{flexible},
+\textit{reliable}, \textit{relevant} and \textit{easy to use}
+framework for PDMPs simulation which will hopefully speed up future research
+on MCMC methods. We will now briefly review how each of these 5 qualities were
+achieved:
+\begin{enumerate}
+  \item We addressed \textit{efficiency} of our framework in Chapter~\ref{pdmps-implementation}
+    by choosing the right tools and design patterns.
+  \item The \textit{flexibility} of our process stems from the policy-based design and
+    hierarchical structure ranging from low level to higher level interfaces.
+    A user of our library can easily change any component of our framework.
+  \item \textit{Reliability} was addressed by adding a carefully crafted autamated
+    tests suite (see Section~\ref{section-testing}).
+  \item We made sure our framework is \textit{relevant} to MCMC researchers,
+    by complementing it with MCMC
+    output analysis tools described in Chapter~\ref{output-analysis-framework} and
+    Appendix~\ref{mcmc-output-analysis}.
+  \item Finally, in Chapter~\ref{chapter-mcmc-applications} we demonstrated that
+    the current PDMP based Monte Carlo algorithms are \textit{very easy to implement}
+    by using our library.
+\end{enumerate}
+
+\noindent
+We are by no means trying to suggest that our framework is perfect.
+There is indeed a lot of more work to be done.
+For example, an abstract layer of standard benchmarking problems could be
+added (i.e., simulating from Gaussian distributions or solving a Bayesian
+logistic regression problem).
+Newly developed algorithms would then imediatelly get access to these
+problems.
+As a result, no additional code at all would
+have to be written to compare it against the other implemented algorithms
+(like the BPS or the Zig-Zag process).
+
+Recall that one of the best features in our output analysis framework
+is ability to implement output processors which do the calculations online.
+While due to memory limitations discussed in Section~\ref{section-output-processors}
+it is necessary to do analysis online for extremely long runs, it is, however,
+not necessary for short simulations.
+In such a scenario analysing the output using a language like C++ is clearly
+undesirable.
+This problem could be completely solved by implementing an R interface to our
+framework.
+
+\section{Reflection on the Development Process}
+
+At the begining of the project I was accustomed to solving every programming problem I had
+by using inheritance.
+Being new to C++, I did not realise at the begining how complex this language is and
+how many different ways of doing the same things it presents.
+The implementation of our framework, as given in Chapter~\ref{pdmps-implementation},
+was already my second attempt.
+My first purely object-oriented design resulted in too deep class hierarchies
+and in the end reusing code was hard.
+This is when I came accress the book by \citet{alexandrescu2001modern}
+where the policy-based design was introduced, which seems to be a perfect
+fit for our problem.
+
+Writing a big test suite also played an important role in the development process.
+It allowed us to catch many bugs, which would have otherwise been hard to track down.
+Also, C++ compilers ignore template class methods that are never called.
+To avoid surprises, it is important to have some code which calls all of our implemented
+methods, to make sure that all of our framework compiles.
+
+Finally, this project has served me as a great introduction to the Monte Carlo methods.
+Designing the framework and thinking about about code reuse helped me a lot in
+understanding the underlying theory.
+I hence hope that this report can also serve as an accessible introduction to
+PDMPs to a non-expert in the field.
+
 \end{document}

@@ -25,8 +25,8 @@ expensive ones reaching 8.
 It would therefore be nice, if there was some easy way to use all the cores to run
 independent processes, turning an experiment that could take a few days into a
 simple overnight simulation.
-The message is clear - our PDMPs framework on its own is not that useful.
-In this chapter, we will extend our library with support for analysing the
+In this chapter, we will try to address the concerns laid out above by extending
+our library with support for analysing the
 output\footnote{The code for this chapter can be found at the project's GitHub
 repository int the src/analysis/ directory.}.
 Once again, our main focus is flexibility -- we want out output analysis utilities
@@ -107,6 +107,8 @@ during this time.
 
 
 \section{Output processors}
+\label{section-output-processors}
+
 This is the most interesting decision we make in the output analysis framework's design.
 To the best of our knowledge, most of MCMC libraries' APIs only support generating
 a pre-specified number of samples from the target probability distribution.
