@@ -104,6 +104,8 @@ with different refresh rate parameters.
            difficulties in exploration of the state space. Indeed, it was shown
            in \citet{bouchard2015bouncy} that with $\lambda_{\text{ref}} = 0$ the
            resulting Markov process need not be ergodic.
+           See Figure~\ref{refresh-rate-how-to-fit} which shows how our framework
+           can assist in searching for an optimal value of the refresh rate.
            See examples/path\_plotting/ in the project's GitHub repository for
            reproducing these plots by using our analysis framework.}
   \label{image-bps-refresh-rates}
@@ -210,6 +212,19 @@ the Zig-Zag process.
            sketch of code used efficiently generate such graphs.}
   \label{zig-zag-vs-bps}
 \end{SCfigure}
+
+\begin{SCfigure}
+  \centering
+  \includegraphics[width=.45\textwidth]{img/bps_refresh_rates}
+  \caption{Comparison of asymptotic variances (see Appendix~\ref{mcmc-output-analysis})
+           of the BPS algorithm on a two-dimensional standard Gaussian target, where
+           the function we integrate along the path is the squared $L^{2}$-norm.
+           This graph suggests that the best refresh rate for such target distribution
+           is approximately $1$. See /examples/bps\_refresh\_rate/ for code that can
+           reproduce this plot.}
+  \label{refresh-rate-how-to-fit}
+\end{SCfigure}
+
 
 \begin{lstfloat}
 \caption{Sketch code for comparing different algorithms just as we did in Figure~\ref{zig-zag-vs-bps}}

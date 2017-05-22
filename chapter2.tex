@@ -2,7 +2,7 @@
 
 \begin{document}
 
-\chapter{Background material}
+\chapter{Background Material}
 
 In this chapter we provide the background material necessary for understanding the
 current MCMC algorithms which rely on simulation of
@@ -14,7 +14,7 @@ introduce the Metropolis-Hastings algorithm
 -- a cornerstone for many MCMC algorithms including the Bouncy Particle Sampler.
 
 
-\section{Non-homogeneous Poisson processes simulation}
+\section{Non-Homogeneous Poisson Processes Simulation}
 \label{background-material-poisson-processes}
 
 
@@ -31,7 +31,7 @@ We mostly refer to textbooks by
 \citet{ross1996stochastic},
 where more careful treatment of the following material can be found.
 
-\subsection{Homogeneous Poisson process}
+\subsection{Homogeneous Poisson Processes}
 
 Consider a sequence of events occuring at random times
 $0 < T_{1} < T_{2} < \dots$ Let $N$ be a counting process, given by
@@ -112,7 +112,7 @@ with rate $\lambda$ using Algorithm~\ref{alg-hom-pp}.
 \end{algorithmic}
 \end{algorithm}
 
-\subsection{Generalising to the non-homogeneous case}
+\subsection{Generalising to the Non-Homogeneous Case}
 \label{non-hom-pp-background}
 
 Suppose we want to model the number of customers arriving at a supermarket.
@@ -148,7 +148,7 @@ for the homogeneous Poisson process.
 We will now present three techniques for non-homogeneous Poisson process simulation,
 all of which can be found in \citet{devroye2013non}.
 
-\subsubsection{Simulation by time scale transformation}
+\subsubsection{Simulation by Time Scale Transformation}
 
 A non-homogeneous Poisson process can be seen as a homogeneous Poisson process
 under a certain time scale transformation.
@@ -195,7 +195,7 @@ This algorithm is computationally tractable only for intensity functions
 where we can compute line~\ref{alg-line-nhpp-time-scale-intractable-quantile}
 quickly; however, most often we do not even have $\Lambda$ in closed form.
 
-\subsubsection{Simulation by thinning}
+\subsubsection{Simulation by Thinning}
 
 Suppose $M$ is a non-homogeneous Poisson process with intensity $\lambda(t)$.
 Let $\mu(t)$ be a function such that
@@ -248,7 +248,7 @@ Algorithm~\ref{alg-non-hom-pp-thinning}.
 \end{algorithmic}
 \end{algorithm}
 
-\subsubsection{Simulation by the composition method}
+\subsubsection{Simulation by the Composition Method}
 
 The technique to be presented plays a crucial role in the big-data
 setting as we will see in the following chapters.
@@ -435,7 +435,7 @@ can only change by $f(n+1) - f(n)$ while the rate $\lambda$ controls how often
 such changes can occur.
 
 
-\section{Piecewise-Deterministic Markov processes}
+\section{Piecewise-Deterministic Markov Processes}
 
 We will now introduce a class of stochastic processes governed by random jumps at
 a sequence of random times $T_{1} < T_{2} < \dots$ and deterministic motion
@@ -504,7 +504,7 @@ the deterministic motion of our process. On the other hand, if there is no flow
 (i.e. $\forall t,x \enskip \phi(x, t) = x$), then we end up with a generator of
 a Markov jump process (see how this relates to Equation~\ref{pp-infinitesimal-generator}).
 
-\subsection{A toy example}
+\subsection{A Toy Example}
 \label{pdmp-toy-example-section}
 
 Suppose we want to model a particle moving along straing lines and changing
