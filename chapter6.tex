@@ -4,7 +4,7 @@
 
 \chapter{Conclusion}
 
-In Section~\ref{project-goals-section} we have set a goal to build an
+In Section~\ref{project-goals-section} we have set the goal to build an
 \textit{efficient}, \textit{flexible},
 \textit{reliable}, \textit{relevant} and \textit{easy to use}
 framework for PDMPs simulation which will hopefully speed up future research
@@ -18,7 +18,7 @@ achieved:
     A user of our library can easily change any component of our framework.
   \item \textit{Reliability} was addressed by adding a carefully crafted autamated
     tests suite (see Section~\ref{section-testing}).
-  \item We made sure our framework is \textit{relevant} to MCMC researchers,
+  \item We made sure our framework is \textit{relevant} to MCMC researchers
     by complementing it with MCMC
     output analysis tools described in Chapter~\ref{output-analysis-framework} and
     Appendix~\ref{mcmc-output-analysis}.
@@ -40,7 +40,7 @@ have to be written to compare it against the other implemented algorithms
 (like the BPS or the Zig-Zag process).
 
 Recall that one of the best features in our output analysis framework
-is ability to implement output processors which do the calculations online.
+is the ability to implement output processors which do the calculations online.
 While due to memory limitations discussed in Section~\ref{section-output-processors}
 it is necessary to do analysis online for extremely long runs, it is, however,
 not necessary for short simulations.
@@ -53,14 +53,14 @@ framework.
 
 At the begining of the project I was accustomed to solving every programming problem I had
 by using inheritance.
-Being new to C++, I did not realise at the begining how complex this language is and
-how many different ways of doing the same things it presents.
-The implementation of our framework, as given in Chapter~\ref{pdmps-implementation},
+Being new to C++, I did not initially realise how complex this language is and
+how many different ways of doing the same things it offers.
+The implementation of our framework, as outlined in Chapter~\ref{pdmps-implementation},
 was already my second attempt.
 My first purely object-oriented design resulted in too deep class hierarchies
 and in the end reusing code was hard.
-This is when I came accress the book by \citet{alexandrescu2001modern}
-where the policy-based design was introduced, which seems to be a perfect
+This is when I came accross the book by \citet{alexandrescu2001modern}
+where the policy-based design was introduced, which seems to be the perfect
 fit for our problem.
 
 Writing a big test suite also played an important role in the development process.
@@ -70,9 +70,19 @@ To avoid surprises, it is important to have some code which calls all of our imp
 methods, to make sure that all of our framework compiles.
 
 Finally, this project has served me as a great introduction to the Monte Carlo methods.
-Designing the framework and thinking about about code reuse helped me a lot in
-understanding the underlying theory.
+Designing the framework and thinking about code reuse helped me to better understand
+the underlying theory.
 I hence hope that this report can also serve as an accessible introduction to
 PDMPs to a non-expert in the field.
+
+It would be nice, however, if we did not have to worry about defining the dependencies
+graph (from Chapter~\ref{pdmps-implementation}) nodes ourselves and only think in
+terms of the factors that we add to the generator.
+We thus implement a higher level \textit{builder} class, which takes a \textit{distribution}
+as input and adds a relevant term to the generator of our process.
+Also, we add Stan's mathematics library, which implements reverse-mode automatic differentiation
+and many common probability distribution functions so that we need not to worry about these
+details.
+
 
 \end{document}

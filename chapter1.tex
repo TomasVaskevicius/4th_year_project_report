@@ -64,18 +64,18 @@ MCMC algorithm by \citet{bierkens2016zig}.
 Apart from very encouraging performance results, the Bouncy Particle Sampler (BPS)
 \cite{peters2012rejection, bouchard2015bouncy}
 and the Zig-Zag process \cite{bierkens2016zig}
-possess one very desirable quality that is not present in most of the other algorithms --
+possess one very desirable quality that is absent from most of the other algorithms --
 non-reversibility of the simulated Markov process.
 See, for example, \citet{neal2004improving} or \citet{sun2010improving} for the role
 that non-reversibility plays in MCMC algorithms.
 PDMP based Monte Carlo algorithms are thus rapidly becoming a very active and promising
 research direction.
 
-Implementing such algorithms is, however, not the easiest task.
+Implementing such algorithms is, unfortunately, not the easiest task.
 The main difficulty comes from the simulation of
 PDMPs; however, the technique for simulating PDMPs across different MCMC algorithms
 could be reused.
-It is thus very inefficient to develop such algorithms from
+It is hence very inefficient to develop such algorithms from
 scratch, which unfortunately seems to currently be the case.
 Writing a generalised and
 reusable software is difficult and time consuming.
@@ -83,11 +83,11 @@ Most researchers thus understandably opt to implement their novel algorithms in
 the quickest and the most direct way possible, which results in code that is
 hard to reuse.
 
-In this project, we aim to contribute to future research of developing
+In this project, we aim to contribute to future research of
 novel PDMP based Monte Carlo algorithms by developing a framework for efficient
 simulation and analysis of as general PDMPs as possible.
 This framework will allow to focus on the structure of the underlying PDMPs rather
-than on tedious implementation details.
+than on the tedious implementation details.
 We expect our software to be \textit{efficient}, \textit{flexible},
 \textit{reliable}, \textit{relevant} and \textit{easy to use}.
 
